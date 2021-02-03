@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<title>Shiika Menu</title>
+		<link rel="stylesheet" href="../css/weui.min.css">
+		<link rel="stylesheet" href="../css/jquery-weui.min.css">
+		<style>
+			.header {
+				height: 46px;
+				line-height: 46px;
+				background-color: #69c;
+				color: #fff;
+				text-align: center;
+				font-size: 20px;
+			}
+			.content {
+				padding: 0 10px;
+			}
+			.weui-cells {
+				margin-top: 0 !important;
+			}
+			.weui-label {
+				color: #888;
+			}
+			.req {
+				color: red;
+				margin-left: 5px;
+				font-weight: bold;
+			}
+			#check-success, #check-error {
+				display: none;
+			}
+			.weui-cell__ft {
+				text-align: right;
+			}
+			.weui-loading {
+				width: 50px;
+				height: 50px;
+			}
+			#loading {
+				display: none;
+			}
+			.weui-cells_radio .weui-cell__bd {
+				-webkit-box-flex: 0.3 !important;
+				-webkit-flex: 0.3 !important;
+				flex: 0.3 !important;
+			}
+			#submit-but {
+				 background-color: rgba(80, 121, 155, 0.7);
+			}
+			.weui-select {
+				padding-left: 0 !important;
+				color: #757575;
+			}
+			.check-menu {
+				width: 20%;
+				float: left;
+			}
+			.menu-rows {
+				height: 46px;
+				line-height: 46px;
+				padding-left: 20px;
+			}
+			.num{
+				border: 1px solid #ccc;
+				display: inline-block;
+				width: 40px;
+				border-radius: 6px;
+				text-align: center;
+				height: 26px;
+				line-height: 26px;
+				color: #666;
+			}
+			.entree-subtract, .entree-add, .noodle-subtract,.noodle-add, .soup-subtract,.soup-add {
+				width: 14px;
+				display: inline-block;
+				/* font-size: 11px; */
+				height: 14px;
+				border: 1px solid #666;
+				border-radius: 50%;
+				line-height: 12px;
+				text-align: center;
+				margin: 0 10px;
+				color: #666;
+			}
+			.btn-gray {
+				border-color: #ccc;
+				color: #bbb;
+			}
+			#submit-but {
+				width: 22%;
+				height: 70px;
+				font-size: 20px;
+				line-height: 1.6;
+				position: absolute;
+				top: 20%;
+				right: 15%;
+			}
+			.table-header {
+				font-size: 15px;
+				height: 40px;
+				line-height: 40px;
+				border-bottom: 1px solid #000;
+				color: #5a5a5a;
+				font-weight: bold;
+			}
+			ul{
+				font-size: 14px;
+				color: #5a5a5a; 
+				width: 98%;
+				table-layout: fixed;
+				margin: 0 auto;
+			}
+			ul li {
+				line-height: 30px;
+				text-align: center;
+				min-height: 40px;
+			}
+			.table-item {
+				border-bottom: 1px solid #999;
+			}
+			.w10 {
+				width: 16%;
+			}
+			.result-btn {
+				display: inline-block;
+				width: 20%;
+				background-color: #586c94;
+				margin-right: 20px;
+				height: 36px;
+				line-height: 36px;
+				font-size: 16px;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="header">
+			<div class="title">今日菜单</div>
+		</div>
+		<div class="content">
+			<div class="weui-cells__title">选择菜品类别及数量</div>
+			<div class="weui-cells" style="padding-left: 30px">
+				<div class="weui-cell__bd menu-rows">
+				  <span>主菜：</span>
+				  <span class="btn-subtract entree-subtract btn-gray">-</span><span class="num entree-num">0</span><span class="btn-add entree-add" data-type="entree">+</span>
+				</div>
+				<div class="weui-cell__bd menu-rows">
+				  <span>面食：</span>
+				  <span class="btn-subtract noodle-subtract btn-gray">-</span><span class="num noodle-num">0</span><span class="btn-add noodle-add" data-type="noodle">+</span>
+				</div>
+				<div class="weui-cell__bd menu-rows">
+				  <span>靓汤：</span>
+				  <span class="btn-subtract soup-subtract btn-gray">-</span><span class="num soup-num">0</span><span class="btn-add soup-add" data-type="soup">+</span>
+				</div>
+				<div>
+					<a class="weui-btn weui-btn_primary" href="javascript:" id="submit-but">生成菜单</a>
+				</div>
+			</div>
+			<div class="menu-list" style="margin-top: 10px;"></div>
+			<div class="creat-btn-box" style="text-align: center;margin-top: 10px;display: none;">
+				<a class="weui-btn weui-btn_primary result-btn" href="javascript:" id="reset-but" style="background-color: #5a83ad;">重置</a>
+				<a class="weui-btn weui-btn_primary result-btn" href="javascript:" id="save-but">保存</a>
+			</div>
+		</div>
+		<div id="loading" class="weui-loadmore">
+			<i class="weui-loading"></i>
+		</div>
+		<!-- 列表 -->
+		<script type="text/template" id="temp-menu-list">
+			<ul border="0" cellspacing="0" cellpadding="0">
+				<li class="weui-flex table-header">
+					<div class="w10">类别</div>
+					<div class="weui-flex__item">菜品名称</div>
+					<div class="weui-flex__item">所需食材</div>
+				</li>
+				<% for(var i in list) { %>
+				<% var item = list[i]; %>
+				<li class="weui-cell_swiped">
+					<div class="weui-cell__bd weui-flex table-item">
+						<div class="w10"><%= item.menuCategory === 'entree' ? '主食' : item.menuCategory === 'noodle' ? '面食' : '靓汤' %></div>
+						<div class="weui-flex__item" style="max-width: 40%;word-break: break-all;min-height: 40px;"><%= item.dishesName %></div>
+						<div class="weui-flex__item" style="max-width: 43%;word-break: break-all;min-height: 40px;"><%= item.ingredient %></div>
+					</div>
+				</li>
+				<% } %>
+			</ul>
+		</script>
+		<script src="../js/zepto.min.js"></script>
+		<script src="../js/jquery-weui.min.js"></script>
+		<script src="../js/zepto.touch.js"></script>
+		<script src="../js/common.js"></script>
+		<script>
+			$(function () {				
+				// 减法
+				$('.entree-subtract, .noodle-subtract, .soup-subtract').tap(function () {
+					if ($(this).siblings('.num').html() > 0) {
+						$(this).siblings('.num').html(parseInt($(this).siblings('.num').html()) - 1)
+						$(this).siblings('.btn-add').removeClass('btn-gray')
+						if ($(this).siblings('.num').html() == 0) {
+							$(this).addClass('btn-gray')
+						}
+					}
+				})
+				
+				// 加法
+				$('.entree-add, .noodle-add, .soup-add').tap(function () {
+					var maxLen = JSON.parse(localStorage.getItem($(this).attr('data-type'))).length
+					if ($(this).siblings('.num').html() < maxLen) {
+						$(this).siblings('.num').html(parseInt($(this).siblings('.num').html()) + 1)
+						$(this).siblings('.btn-subtract').removeClass('btn-gray')
+						if ($(this).siblings('.num').html() == maxLen) {
+							$(this).addClass('btn-gray')
+						}
+					}
+				})
+				
+				// 生成菜单事件
+				$('#submit-but').tap(function () {
+					if ($('.entree-num').html() == '0' && $('.noodle-num').html() == '0'  && $('.soup-num').html() == '0' ) {
+						$.toptip('请选择菜单类别及数量', 'error');
+					} else {
+						createMenu()
+					}
+				})
+				
+				// 重置菜单
+				$('#reset-but').tap(function () {
+					// 保存信息
+					$.confirm({
+					  title: '确认重置？',
+					  text: '是否确认生成新的菜单',
+					  onOK: function () {
+						createMenu()
+					  },
+					  onCancel: function () {
+						$.closeModal();
+					  }
+					});
+				})
+				
+				// 保存菜单
+				$('#save-but').tap(function () {
+					// 保存信息
+					$.confirm({
+					  title: '确认保存？',
+					  text: '是否确认保存菜单',
+					  onOK: function () {
+						SaveMenu()
+					  },
+					  onCancel: function () {
+						$.closeModal();
+					  }
+					});
+				})
+				
+				// 生成菜单
+				function createMenu(){
+					var entreeNum = $('.entree-num').html(),
+						noodleNum = $('.noodle-num').html(),
+						soupNum = $('.soup-num').html(),
+						entreeList = JSON.parse(localStorage.getItem('entree')),
+						noodleList = JSON.parse(localStorage.getItem('noodle')),
+						soupList = JSON.parse(localStorage.getItem('soup')),
+						flagArr = [];
+					for (var i = 0; i < entreeNum; i++) {
+						flagArr.push(entreeList[Math.floor((Math.random()*entreeList.length))])
+					}
+					for (var j = 0; j < noodleNum; j++) {
+						flagArr.push(noodleList[Math.floor((Math.random()*noodleList.length))])
+					}
+					for (var k = 0; k < soupNum; k++) {
+						flagArr.push(soupList[Math.floor((Math.random()*soupList.length))])
+					}
+					var html = template('#temp-menu-list', {
+						list: flagArr
+					})
+					$('.menu-list').html(html)
+					$('.creat-btn-box').show()
+				}
+				
+				// 提交
+				function SaveMenu() {
+					/* var data = {
+						 menuCategory: $('#menuCategory').val(),
+						 dishesName: $('#dishesName').val(),
+						 ingredient: $('#ingredient').val(),
+						 time: dateFormat(+new Date)						 
+					  }
+					  var menuCategory = $('#menuCategory').val()
+					  var menuData = localStorage.getItem(menuCategory)
+					  if (menuData) {
+						  var tempArr = JSON.parse(menuData)
+						  tempArr.push(data)
+						  localStorage.setItem(menuCategory, JSON.stringify(tempArr))
+					  } else {
+						  localStorage.setItem(menuCategory, JSON.stringify([data]))
+					  } */
+					  $.alert('保存成功', resetForm);
+				}
+				
+				// 重置表单
+				function resetForm() {
+					/* $('#menuCategory').val('')
+					$('#dishesName').val('')
+					$('#ingredient').val('') */
+				}				
+			})
+		</script>
+	</body>
+</html>
