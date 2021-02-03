@@ -194,7 +194,16 @@
 		<script src="../js/zepto.touch.js"></script>
 		<script src="../js/common.js"></script>
 		<script>
-			$(function () {				
+			$(function () {
+				if (!localStorage.getItem('entree')) {
+					$('.entree-add').addClass('btn-gray')
+				}
+				if (!localStorage.getItem('noodle')) {
+					$('.noodle-add').addClass('btn-gray')
+				}
+				if (!localStorage.getItem('soup')) {
+					$('.soup-add').addClass('btn-gray')
+				}
 				// 减法
 				$('.entree-subtract, .noodle-subtract, .soup-subtract').tap(function () {
 					if ($(this).siblings('.num').html() > 0) {
@@ -208,7 +217,7 @@
 				
 				// 加法
 				$('.entree-add, .noodle-add, .soup-add').tap(function () {
-					var maxLen = JSON.parse(localStorage.getItem($(this).attr('data-type'))).length
+					var maxLen = localStorage.getItem($(this).attr('data-type')) ? JSON.parse(localStorage.getItem($(this).attr('data-type'))).length : 0
 					if ($(this).siblings('.num').html() < maxLen) {
 						$(this).siblings('.num').html(parseInt($(this).siblings('.num').html()) + 1)
 						$(this).siblings('.btn-subtract').removeClass('btn-gray')
